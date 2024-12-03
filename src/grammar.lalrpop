@@ -44,16 +44,16 @@ pub Const:Const = {
 }
 
 pub SigSpec:SigSpec = {
-	<Const> => SigSpec::Const((<>, 0, 0)),
-	<Ident> => SigSpec::Refer((<>, 0, 0)),
+	<Const> => SigSpec::Const((<>, None)),
+	<Ident> => SigSpec::Refer((<>, None)),
 	<i:SigSpec> "[" <l:Int> "]" =>? match i {
-		SigSpec::Const((c, _, _)) => Ok(SigSpec::Const((c, l, 0))),
-		SigSpec::Refer((c, _, _)) => Ok(SigSpec::Refer((c, l, 0))),
+		SigSpec::Const((c, _)) => Ok(SigSpec::Const((c, Some(Index::Offset(l))))),
+		SigSpec::Refer((c, _)) => Ok(SigSpec::Refer((c, Some(Index::Offset(l))))),
 		_ => Err(ParseError::User{ error:anyhow!("except a sigspec") }),
 	},
 	<i:SigSpec> "[" <l:Int> ":" <r:Int> "]" =>? match i {
-		SigSpec::Const((c, _, _)) => Ok(SigSpec::Const((c, l, r))),
-		SigSpec::Refer((c, _, _)) => Ok(SigSpec::Refer((c, l, r))),
+		SigSpec::Const((c, _)) => Ok(SigSpec::Const((c, Some(Index::Range((l, r)))))),
+		SigSpec::Refer((c, _)) => Ok(SigSpec::Refer((c, Some(Index::Range((l, r)))))),
 		_ => Err(ParseError::User{ error:anyhow!("except a sigspec") }),
 	},
 	"{" <SigSpec*> "}" => SigSpec::List(<>),
